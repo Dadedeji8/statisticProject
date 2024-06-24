@@ -1,0 +1,11 @@
+/* .login-bg {
+  background: url("../statics/bg1.jpg");
+}
+#login-bg {
+  background: url("../statics/bg1.jpg");
+} */
+.bbb {
+  background: linear-gradient(hsla(0, 0%, 0%, 0.5), hsla(0, 0%, 0%, 0.5)),
+    url("../statics/bg3.jpg");
+  background-size: cover;
+}

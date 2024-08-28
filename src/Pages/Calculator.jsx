@@ -1,9 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Calculator = () => {
     const [formula, setFormula] = useState('');
     const [inputValues, setInputValues] = useState([]);
     const [result, setResult] = useState(null);
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                setLocation({ latitude, longitude });
+            });
+        } else {
+            setLocation("Geolocation not supported.");
+        }
+    }, []);
 
     const handleFormulaChange = (e) => {
         setFormula(e.target.value);
@@ -51,11 +63,17 @@ const Calculator = () => {
                 const expected = inputValues[1].split(',').map(Number);
                 calculationResult = calculateChiSquareTest(observed, expected);
                 break;
+            case 'tTest':
+                const sample1 = inputValues[0].split(',').map(Number);
+                const sample2 = inputValues[1].split(',').map(Number);
+                calculationResult = calculateTTest(sample1, sample2);
+                break;
             default:
                 calculationResult = 'Please select a valid formula';
         }
 
         setResult(calculationResult);
+        console.log("User Location: ", location);
     };
 
     const calculateMean = (values) => {
@@ -144,6 +162,21 @@ const Calculator = () => {
         return `Chi-Square Value: ${chiSquare.toFixed(2)}`;
     };
 
+    const calculateTTest = (sample1, sample2) => {
+        const mean1 = sample1.reduce((a, b) => a + b, 0) / sample1.length;
+        const mean2 = sample2.reduce((a, b) => a + b, 0) / sample2.length;
+
+        const variance1 = sample1.reduce((acc, val) => acc + Math.pow(val - mean1, 2), 0) / (sample1.length - 1);
+        const variance2 = sample2.reduce((acc, val) => acc + Math.pow(val - mean2, 2), 0) / (sample2.length - 1);
+
+        const pooledVariance = (((sample1.length - 1) * variance1) + ((sample2.length - 1) * variance2)) / (sample1.length + sample2.length - 2);
+        const tValue = (mean1 - mean2) / Math.sqrt(pooledVariance * (1 / sample1.length + 1 / sample2.length));
+
+        return `T-Value: ${tValue.toFixed(2)}`;
+    };
+
+    // ... (rest of the code remains the same)
+
     const renderInputs = () => {
         switch (formula) {
             case 'mean':
@@ -182,7 +215,6 @@ const Calculator = () => {
             case 'anova':
                 return (
                     <>
-
                         {[...Array(3)].map((_, index) => (
                             <input
                                 className='border rounded my-6 p-3'
@@ -196,6 +228,7 @@ const Calculator = () => {
                     </>
                 );
             case 'chiTest':
+            case 'tTest':
                 return (
                     <>
                         <input
@@ -232,6 +265,7 @@ const Calculator = () => {
                     <option value="range">Range</option>
                     <option value="anova">ANOVA</option>
                     <option value="chiTest">Chi square test</option>
+                    <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}
                 {formula && (
@@ -242,7 +276,7 @@ const Calculator = () => {
                                 ? 'Enter values and corresponding frequencies separated by commas.'
                                 : formula === 'anova'
                                     ? 'Enter values for each group separated by commas.'
-                                    : formula === 'chiTest'
+                                    : formula === 'chiTest' || formula === 'tTest'
                                         ? 'Enter observed and expected frequencies separated by commas.'
                                         : 'Enter values separated by commas.'}
                         </p>
@@ -250,6 +284,11 @@ const Calculator = () => {
                 )}
             </form>
             {result !== null && <div>Result: {result}</div>}
+            {location && (
+                <div className='mt-6'>
+                    <p>Your Location: Latitude {location.latitude}, Longitude {location.longitude}</p>
+                </div>
+            )}
         </div>
     );
 };

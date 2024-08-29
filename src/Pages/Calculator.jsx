@@ -4,6 +4,7 @@ const Calculator = () => {
     const [formula, setFormula] = useState('');
     const [inputValues, setInputValues] = useState([]);
     const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
     const [location, setLocation] = useState(null);
     const [locationInfo, setLocationInfo] = useState(null);
 
@@ -38,16 +39,68 @@ const Calculator = () => {
         setFormula(e.target.value);
         setInputValues([]);
         setResult(null);
+        setError(null);
     };
 
     const handleInputChange = (index, value) => {
         const newInputValues = [...inputValues];
         newInputValues[index] = value;
         setInputValues(newInputValues);
+        setError(null); // Clear any existing errors when input changes
+    };
+
+    const validateInput = (input) => {
+        if (!input || input.trim() === '') {
+            return "Input cannot be empty.";
+        }
+
+        const values = input.split(',');
+
+        for (let i = 0; i < values.length; i++) {
+            if (values[i].trim() === '') {
+                return "Input contains empty values or double commas.";
+            }
+            if (isNaN(values[i])) {
+                return "All inputs must be numbers.";
+            }
+        }
+        return null; // No error
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        let validationError = null;
+
+        switch (formula) {
+            case 'mean':
+            case 'median':
+            case 'variance':
+            case 'mode':
+            case 'range':
+                validationError = validateInput(inputValues[0]);
+                break;
+            case 'groupedMean':
+            case 'chiTest':
+            case 'tTest':
+                validationError = validateInput(inputValues[0]) || validateInput(inputValues[1]);
+                break;
+            case 'anova':
+                for (let i = 0; i < inputValues.length; i++) {
+                    validationError = validateInput(inputValues[i]);
+                    if (validationError) break;
+                }
+                break;
+            default:
+                validationError = "Please select a valid formula.";
+        }
+
+        if (validationError) {
+            setError(validationError);
+            setResult(null);
+            return;
+        }
+
+        setError(null); // Clear previous errors
         let calculationResult;
 
         switch (formula) {
@@ -186,9 +239,9 @@ const Calculator = () => {
         const variance1 = sample1.reduce((acc, val) => acc + Math.pow(val - mean1, 2), 0) / (sample1.length - 1);
         const variance2 = sample2.reduce((acc, val) => acc + Math.pow(val - mean2, 2), 0) / (sample2.length - 1);
 
-        const pooledVariance = (((sample1.length - 1) * variance1) + ((sample2.length - 1) * variance2)) / (sample1.length + sample2.length - 2);
-        const tValue = (mean1 - mean2) / Math.sqrt(pooledVariance * (1 / sample1.length + 1 / sample2.length));
+        const se = Math.sqrt(variance1 / sample1.length + variance2 / sample2.length);
 
+        const tValue = (mean1 - mean2) / se;
         return `T-Value: ${tValue.toFixed(2)}`;
     };
 
@@ -299,7 +352,7 @@ const Calculator = () => {
     return (
         <div className='px-32 p-5'>
             <form onSubmit={handleSubmit}>
-                <select name="formula" className='border text-lg mb-5 p-3 rounded-t' value={formula} onChange={handleFormulaChange}>
+                <select name="formula" className='border text-lg p-3 rounded-t mb-5' value={formula} onChange={handleFormulaChange}>
                     <option value="">Select formula</option>
                     <option value="mean">Mean</option>
                     <option value="groupedMean">Grouped Mean</option>
@@ -312,9 +365,10 @@ const Calculator = () => {
                     <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}
-                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 mt-5 md:m-auto'>Calculate</button>
+                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
 
             </form>
+            {error && <p className="error">{error}</p>}
             {result && <p>Result: {result}</p>}
             {location && (
                 <div>

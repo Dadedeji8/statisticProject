@@ -299,7 +299,7 @@ const Calculator = () => {
     return (
         <div className='px-32 p-5'>
             <form onSubmit={handleSubmit}>
-                <select name="formula" className='border text-lg p-3 rounded-t' value={formula} onChange={handleFormulaChange}>
+                <select name="formula" className='border text-lg mb-5 p-3 rounded-t' value={formula} onChange={handleFormulaChange}>
                     <option value="">Select formula</option>
                     <option value="mean">Mean</option>
                     <option value="groupedMean">Grouped Mean</option>
@@ -312,7 +312,7 @@ const Calculator = () => {
                     <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}
-                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
+                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 mt-5 md:m-auto'>Calculate</button>
 
             </form>
             {result && <p>Result: {result}</p>}

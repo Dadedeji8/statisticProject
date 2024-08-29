@@ -5,6 +5,7 @@ const Calculator = () => {
     const [inputValues, setInputValues] = useState([]);
     const [result, setResult] = useState(null);
     const [location, setLocation] = useState(null);
+    const [locationInfo, setLocationInfo] = useState(null);
 
     useEffect(() => {
         if ("geolocation" in navigator) {
@@ -15,6 +16,22 @@ const Calculator = () => {
         } else {
             setLocation("Geolocation not supported.");
         }
+    }, []);
+
+    useEffect(() => {
+        fetch("http://ip-api.com/json/")
+            .then((response) => response.json())
+            .then((data) => {
+                setLocationInfo({
+                    country: data.country,
+                    region: data.regionName,
+                    city: data.city,
+                    district: data.district,
+                    timezone: data.timezone,
+                    isp: data.isp,
+                });
+            })
+            .catch((error) => console.error("Error fetching location data:", error));
     }, []);
 
     const handleFormulaChange = (e) => {
@@ -175,8 +192,6 @@ const Calculator = () => {
         return `T-Value: ${tValue.toFixed(2)}`;
     };
 
-    // ... (rest of the code remains the same)
-
     const renderInputs = () => {
         switch (formula) {
             case 'mean':
@@ -215,33 +230,62 @@ const Calculator = () => {
             case 'anova':
                 return (
                     <>
-                        {[...Array(3)].map((_, index) => (
-                            <input
-                                className='border rounded my-6 p-3'
-                                key={index}
-                                type="text"
-                                placeholder={`Enter values for group ${index + 1} separated by commas`}
-                                value={inputValues[index] || ''}
-                                onChange={(e) => handleInputChange(index, e.target.value)}
-                            />
-                        ))}
-                    </>
-                );
-            case 'chiTest':
-            case 'tTest':
-                return (
-                    <>
                         <input
                             className='border rounded my-6 p-3'
                             type="text"
-                            placeholder="Enter observed frequencies separated by commas"
+                            placeholder="Enter group 1 values separated by commas"
                             value={inputValues[0] || ''}
                             onChange={(e) => handleInputChange(0, e.target.value)}
                         />
                         <input
                             className='border rounded my-6 p-3'
                             type="text"
-                            placeholder="Enter expected frequencies separated by commas"
+                            placeholder="Enter group 2 values separated by commas"
+                            value={inputValues[1] || ''}
+                            onChange={(e) => handleInputChange(1, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter group 3 values separated by commas"
+                            value={inputValues[2] || ''}
+                            onChange={(e) => handleInputChange(2, e.target.value)}
+                        />
+                    </>
+                );
+            case 'chiTest':
+                return (
+                    <>
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter observed values separated by commas"
+                            value={inputValues[0] || ''}
+                            onChange={(e) => handleInputChange(0, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter expected values separated by commas"
+                            value={inputValues[1] || ''}
+                            onChange={(e) => handleInputChange(1, e.target.value)}
+                        />
+                    </>
+                );
+            case 'tTest':
+                return (
+                    <>
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter sample 1 values separated by commas"
+                            value={inputValues[0] || ''}
+                            onChange={(e) => handleInputChange(0, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter sample 2 values separated by commas"
                             value={inputValues[1] || ''}
                             onChange={(e) => handleInputChange(1, e.target.value)}
                         />
@@ -256,7 +300,7 @@ const Calculator = () => {
         <div className='px-32 p-5'>
             <form onSubmit={handleSubmit}>
                 <select name="formula" className='border text-lg p-3 rounded-t' value={formula} onChange={handleFormulaChange}>
-                    <option value="" disabled>Select formula</option>
+                    <option value="">Select formula</option>
                     <option value="mean">Mean</option>
                     <option value="groupedMean">Grouped Mean</option>
                     <option value="median">Median</option>
@@ -264,29 +308,30 @@ const Calculator = () => {
                     <option value="mode">Mode</option>
                     <option value="range">Range</option>
                     <option value="anova">ANOVA</option>
-                    <option value="chiTest">Chi square test</option>
+                    <option value="chiTest">Chi-Square Test</option>
                     <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}
-                {formula && (
-                    <>
-                        <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
-                        <p>
-                            {formula === 'groupedMean'
-                                ? 'Enter values and corresponding frequencies separated by commas.'
-                                : formula === 'anova'
-                                    ? 'Enter values for each group separated by commas.'
-                                    : formula === 'chiTest' || formula === 'tTest'
-                                        ? 'Enter observed and expected frequencies separated by commas.'
-                                        : 'Enter values separated by commas.'}
-                        </p>
-                    </>
-                )}
+                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
+
             </form>
-            {result !== null && <div>Result: {result}</div>}
+            {result && <p>Result: {result}</p>}
             {location && (
-                <div className='mt-6'>
-                    <p>Your Location: Latitude {location.latitude}, Longitude {location.longitude}</p>
+                <div>
+                    <h3>Your Location:</h3>
+                    <p>Latitude: {location.latitude}</p>
+                    <p>Longitude: {location.longitude}</p>
+                </div>
+            )}
+            {locationInfo && (
+                <div>
+                    <h3>Additional Location Info:</h3>
+                    <p>Country: {locationInfo.country}</p>
+                    <p>Region: {locationInfo.region}</p>
+                    <p>City: {locationInfo.city}</p>
+                    <p>District: {locationInfo.district}</p>
+                    <p>Timezone: {locationInfo.timezone}</p>
+                    <p>ISP: {locationInfo.isp}</p>
                 </div>
             )}
         </div>

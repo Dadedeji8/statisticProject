@@ -74,7 +74,8 @@ const Calculator = () => {
         switch (formula) {
             case 'mean':
             case 'median':
-            case 'variance':
+            case 'variancePopulation':
+            case 'varianceSample':
             case 'mode':
             case 'range':
                 validationError = validateInput(inputValues[0]);
@@ -115,8 +116,11 @@ const Calculator = () => {
             case 'median':
                 calculationResult = calculateMedian(inputValues[0]);
                 break;
-            case 'variance':
-                calculationResult = calculateVariance(inputValues[0]);
+            case 'varianceSample':
+                calculationResult = calculateSampleVariance(inputValues[0]);
+                break;
+            case 'variancePopulation':
+                calculationResult = calculatePopulationVariance(inputValues[0]);
                 break;
             case 'mode':
                 calculationResult = calculateMode(inputValues[0]);
@@ -171,11 +175,19 @@ const Calculator = () => {
         return nums[middle].toFixed(2);
     };
 
-    const calculateVariance = (values) => {
+    const calculateSampleVariance = (values) => {
         const nums = values.split(',').map(Number);
-        const mean = calculateMean(values);
+        const mean = nums.reduce((acc, curr) => acc + curr, 0) / nums.length;
+        const variance = nums.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0) / (nums.length - 1);
+        return `Sample Variance: ${variance.toFixed(2)}`;
+    };
+
+    // Population Variance Calculation
+    const calculatePopulationVariance = (values) => {
+        const nums = values.split(',').map(Number);
+        const mean = nums.reduce((acc, curr) => acc + curr, 0) / nums.length;
         const variance = nums.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0) / nums.length;
-        return variance.toFixed(2);
+        return `Population Variance: ${variance.toFixed(2)}`;
     };
 
     const calculateMode = (values) => {
@@ -251,6 +263,8 @@ const Calculator = () => {
             case 'median':
             case 'variance':
             case 'mode':
+            case 'variancePopulation':
+            case 'varianceSample':
             case 'range':
                 return (
                     <input
@@ -357,7 +371,8 @@ const Calculator = () => {
                     <option value="mean">Mean</option>
                     <option value="groupedMean">Grouped Mean</option>
                     <option value="median">Median</option>
-                    <option value="variance">Variance</option>
+                    <option value="variancePopulation">Variance (Population)</option>
+                    <option value="varianceSample">Sample Variance</option>
                     <option value="mode">Mode</option>
                     <option value="range">Range</option>
                     <option value="anova">ANOVA</option>

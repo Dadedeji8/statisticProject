@@ -4,9 +4,7 @@ import './page.css'
 import '../index.css'
 
 const Signup = () => {
-    const preventDefault = () => {
-
-    }
+  
 
     return (
         <div className='fullheight md:flex w-100  bg-green-700'>

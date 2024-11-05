@@ -7,7 +7,7 @@ import Signup from "./Pages/SignupPage";
 import Error from "./Pages/ErrorPage";
 import History from "./Pages/HistoryPage";
 import Calculator from "./Pages/Calculator";
-
+import { AuthProvider } from "./context/authContext";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -39,6 +39,7 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>  <RouterProvider router={router} /></AuthProvider>
+
   </React.StrictMode>
 );

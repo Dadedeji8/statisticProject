@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import { jStat } from 'jstat';
 const Calculator = () => {
     const [formula, setFormula] = useState('');
     const [inputValues, setInputValues] = useState([]);
@@ -7,7 +7,8 @@ const Calculator = () => {
     const [error, setError] = useState(null);
     const [location, setLocation] = useState(null);
     const [locationInfo, setLocationInfo] = useState(null);
-
+    const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
+    const [threshold, setThreshold] = useState(3.0);
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
@@ -47,6 +48,12 @@ const Calculator = () => {
         newInputValues[index] = value;
         setInputValues(newInputValues);
         setError(null); // Clear any existing errors when input changes
+    };
+    const handleSignificanceLevelChange = (e) => {
+        setSignificanceLevel(parseFloat(e.target.value));
+    };
+    const handleThresholdChange = (e) => {
+        setThreshold(parseFloat(e.target.value));
     };
 
     const validateInput = (input) => {
@@ -130,7 +137,7 @@ const Calculator = () => {
                 break;
             case 'anova':
                 const groups = inputValues.map(group => group.split(',').map(Number));
-                calculationResult = calculateANOVA(groups);
+                calculationResult = calculateANOVA(groups, significanceLevel);
                 break;
             case 'chiTest':
                 const observed = inputValues[0].split(',').map(Number);
@@ -208,31 +215,48 @@ const Calculator = () => {
         return (max - min).toFixed(2);
     };
 
-    const calculateANOVA = (groups) => {
+    const calculateANOVA = (groups, significanceLevel) => {
+        // Calculate means for each group
         const means = groups.map(group => group.reduce((a, b) => a + b, 0) / group.length);
         const overallMean = means.reduce((a, b) => a + b, 0) / means.length;
 
+        // Step 1: Calculate Sum of Squares Between Groups (SSB)
         let ssBetween = 0;
         groups.forEach(group => {
-            ssBetween += group.length * Math.pow((group.reduce((a, b) => a + b, 0) / group.length) - overallMean, 2);
+            const groupMean = group.reduce((a, b) => a + b, 0) / group.length;
+            ssBetween += group.length * Math.pow((groupMean - overallMean), 2);
         });
 
+        // Step 2: Calculate Sum of Squares Within Groups (SSW)
         let ssWithin = 0;
         groups.forEach(group => {
             const mean = group.reduce((a, b) => a + b, 0) / group.length;
             ssWithin += group.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0);
         });
 
-        const dfBetween = groups.length - 1;
-        const dfWithin = groups.reduce((acc, group) => acc + group.length, 0) - groups.length;
+        // Degrees of freedom
+        const dfBetween = groups.length - 1; // Between groups degrees of freedom
+        const dfWithin = groups.reduce((acc, group) => acc + group.length, 0) - groups.length; // Within groups degrees of freedom
 
-        const msBetween = ssBetween / dfBetween;
-        const msWithin = ssWithin / dfWithin;
+        // Mean Squares
+        const msBetween = ssBetween / dfBetween; // Mean Square Between
+        const msWithin = ssWithin / dfWithin; // Mean Square Within
 
+        // F-value
         const fValue = msBetween / msWithin;
-        return `F-Value: ${fValue.toFixed(2)}`;
-    };
 
+        // P-value calculation using jStat
+        const calculatePValue = (fValue, dfBetween, dfWithin) => {
+            return 1 - jStat.centralF.cdf(fValue, dfBetween, dfWithin);
+        };
+
+        const pValue = calculatePValue(fValue, dfBetween, dfWithin);
+
+        // Determine significance
+        const isSignificant = pValue < significanceLevel;
+
+        return `F-Value: ${fValue.toFixed(2)}, p-Value: ${pValue.toFixed(4)}, Significance: ${isSignificant ? `Yes (p < ${significanceLevel})` : `No (p > ${significanceLevel})`}`;
+    };
     const calculateChiSquareTest = (observed, expected) => {
         if (observed.length !== expected.length) {
             return 'Observed and expected frequencies must have the same length.';
@@ -318,43 +342,13 @@ const Calculator = () => {
                             value={inputValues[2] || ''}
                             onChange={(e) => handleInputChange(2, e.target.value)}
                         />
-                    </>
-                );
-            case 'chiTest':
-                return (
-                    <>
+                        <p>Input Significance Level</p>
                         <input
                             className='border rounded my-6 p-3'
-                            type="text"
-                            placeholder="Enter observed values separated by commas"
-                            value={inputValues[0] || ''}
-                            onChange={(e) => handleInputChange(0, e.target.value)}
-                        />
-                        <input
-                            className='border rounded my-6 p-3'
-                            type="text"
-                            placeholder="Enter expected values separated by commas"
-                            value={inputValues[1] || ''}
-                            onChange={(e) => handleInputChange(1, e.target.value)}
-                        />
-                    </>
-                );
-            case 'tTest':
-                return (
-                    <>
-                        <input
-                            className='border rounded my-6 p-3'
-                            type="text"
-                            placeholder="Enter sample 1 values separated by commas"
-                            value={inputValues[0] || ''}
-                            onChange={(e) => handleInputChange(0, e.target.value)}
-                        />
-                        <input
-                            className='border rounded my-6 p-3'
-                            type="text"
-                            placeholder="Enter sample 2 values separated by commas"
-                            value={inputValues[1] || ''}
-                            onChange={(e) => handleInputChange(1, e.target.value)}
+                            type="number"
+                            placeholder="Enter significance level (e.g., 0.05)"
+                            value={significanceLevel}
+                            onChange={handleSignificanceLevelChange}
                         />
                     </>
                 );

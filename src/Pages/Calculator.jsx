@@ -88,7 +88,15 @@ const Calculator = () => {
                 validationError = validateInput(inputValues[0]);
                 break;
             case 'groupedMean':
-            case 'chiTest':
+            case 'chiTestObservedExpected':
+                validationError = validateInput(inputValues[0]) || validateInput(inputValues[1]);
+                break;
+            case 'chiTestContingency':
+                for (let i = 0; i < inputValues.length; i++) {
+                    validationError = validateInput(inputValues[i]);
+                    if (validationError) break;
+                }
+                break;
             case 'tTest':
                 validationError = validateInput(inputValues[0]) || validateInput(inputValues[1]);
                 break;
@@ -139,15 +147,25 @@ const Calculator = () => {
                 const groups = inputValues.map(group => group.split(',').map(Number));
                 calculationResult = calculateANOVA(groups, significanceLevel);
                 break;
-            case 'chiTest':
+            // case 'chiTest':
+            //     const observed = inputValues[0].split(',').map(Number);
+            //     const expected = inputValues[1].split(',').map(Number);
+            //     calculationResult = calculateChiSquareTest(observed, expected, significanceLevel);
+            //     break;
+            case 'chiTestObservedExpected':
                 const observed = inputValues[0].split(',').map(Number);
                 const expected = inputValues[1].split(',').map(Number);
-                calculationResult = calculateChiSquareTest(observed, expected);
+                calculationResult = calculateChiSquareTestObservedExpected(observed, expected);
+                break;
+            case 'chiTestContingency':
+                const table = inputValues.map(row => row.split(',').map(Number));
+                calculationResult = calculateChiSquareTestContingency(table, significanceLevel);
+
                 break;
             case 'tTest':
                 const sample1 = inputValues[0].split(',').map(Number);
                 const sample2 = inputValues[1].split(',').map(Number);
-                calculationResult = calculateTTest(sample1, sample2);
+                calculationResult = calculateTTest(sample1, sample2, significanceLevel);
                 break;
             default:
                 calculationResult = 'Please select a valid formula';
@@ -257,7 +275,24 @@ const Calculator = () => {
 
         return `F-Value: ${fValue.toFixed(2)}, p-Value: ${pValue.toFixed(4)}, Significance: ${isSignificant ? `Yes (p < ${significanceLevel})` : `No (p > ${significanceLevel})`}`;
     };
-    const calculateChiSquareTest = (observed, expected) => {
+    // const calculateChiSquareTest = (observed, expected, significanceLevel) => {
+    //     if (observed.length !== expected.length) {
+    //         return 'Observed and expected frequencies must have the same length.';
+    //     }
+
+    //     let chiSquare = 0;
+    //     for (let i = 0; i < observed.length; i++) {
+    //         chiSquare += Math.pow(observed[i] - expected[i], 2) / expected[i];
+    //     }
+
+    //     const df = observed.length - 1; // Degrees of freedom
+    //     const criticalValue = jStat.chisquare.inv(1 - significanceLevel, df); // Critical value
+
+    //     return `Chi-Square Value: ${chiSquare.toFixed(2)}, Critical Value: ${criticalValue.toFixed(2)}, 
+    //             Significance: ${chiSquare > criticalValue ? 'Yes (Significant)' : 'No (Not Significant)'}`;
+    // };
+
+    const calculateChiSquareTestObservedExpected = (observed, expected) => {
         if (observed.length !== expected.length) {
             return 'Observed and expected frequencies must have the same length.';
         }
@@ -267,18 +302,95 @@ const Calculator = () => {
         }
         return `Chi-Square Value: ${chiSquare.toFixed(2)}`;
     };
+    const calculateChiSquareTestContingency = (table, significanceLevel) => {
+        // Validate input
+        if (!Array.isArray(table) || table.length === 0 || !Array.isArray(table[0])) {
+            throw new Error("Invalid table: Must be a non-empty 2D array.");
+        }
+        if (significanceLevel <= 0 || significanceLevel >= 1) {
+            throw new Error("Invalid significance level: Must be between 0 and 1.");
+        }
 
-    const calculateTTest = (sample1, sample2) => {
-        const mean1 = sample1.reduce((a, b) => a + b, 0) / sample1.length;
-        const mean2 = sample2.reduce((a, b) => a + b, 0) / sample2.length;
+        const rowTotals = getRowTotals(table);
+        const colTotals = getColumnTotals(table);
+        const grandTotal = rowTotals.reduce((a, b) => a + b, 0);
 
-        const variance1 = sample1.reduce((acc, val) => acc + Math.pow(val - mean1, 2), 0) / (sample1.length - 1);
-        const variance2 = sample2.reduce((acc, val) => acc + Math.pow(val - mean2, 2), 0) / (sample2.length - 1);
+        const chiSquare = calculateChiSquareStatistic(table, rowTotals, colTotals, grandTotal);
+        const degreesOfFreedom = calculateDegreesOfFreedom(table);
+        const pValue = 1 - jStat.chisquare.cdf(chiSquare, degreesOfFreedom);
+        const criticalValue = jStat.chisquare.inv(1 - significanceLevel, degreesOfFreedom);
+        const isSignificant = pValue < significanceLevel;
 
-        const se = Math.sqrt(variance1 / sample1.length + variance2 / sample2.length);
+        return formatResults(chiSquare, degreesOfFreedom, pValue, criticalValue, significanceLevel, isSignificant);
+    };
 
+    // Helper function to calculate row totals
+    const getRowTotals = (table) => {
+        return table.map(row => row.reduce((a, b) => a + b, 0));
+    };
+
+    // Helper function to calculate column totals
+    const getColumnTotals = (table) => {
+        return table[0].map((_, colIndex) => table.reduce((sum, row) => sum + row[colIndex], 0));
+    };
+
+    // Helper function to calculate the chi-square statistic
+    const calculateChiSquareStatistic = (table, rowTotals, colTotals, grandTotal) => {
+        let chiSquare = 0;
+        for (let i = 0; i < table.length; i++) {
+            for (let j = 0; j < table[i].length; j++) {
+                const expected = (rowTotals[i] * colTotals[j]) / grandTotal;
+                chiSquare += Math.pow(table[i][j] - expected, 2) / expected;
+            }
+        }
+        return chiSquare;
+    };
+
+    // Helper function to calculate degrees of freedom
+    const calculateDegreesOfFreedom = (table) => {
+        return (table.length - 1) * (table[0].length - 1);
+    };
+
+    // Helper function to format results for output
+    const formatResults = (chiSquare, degreesOfFreedom, pValue, criticalValue, significanceLevel, isSignificant) => {
+        return `Chi-Square Value: ${chiSquare.toFixed(2)}, Degrees of Freedom: ${degreesOfFreedom}, ` +
+            `p-Value: ${pValue.toFixed(4)}, Critical Value: ${criticalValue.toFixed(2)}, ` +
+            `Significance: ${isSignificant ? `Yes (p < ${significanceLevel})` : `No (p > ${significanceLevel})`}`;
+    };
+
+    const calculateTTest = (sample1, sample2, significanceLevel = 0.05) => {
+        const n1 = sample1.length;
+        const n2 = sample2.length;
+
+        // Calculate means
+        const mean1 = sample1.reduce((a, b) => a + b, 0) / n1;
+        const mean2 = sample2.reduce((a, b) => a + b, 0) / n2;
+
+        // Calculate variances
+        const variance1 = sample1.reduce((acc, val) => acc + Math.pow(val - mean1, 2), 0) / (n1 - 1);
+        const variance2 = sample2.reduce((acc, val) => acc + Math.pow(val - mean2, 2), 0) / (n2 - 1);
+
+        // Calculate standard error
+        const se = Math.sqrt(variance1 / n1 + variance2 / n2);
+
+        // Calculate T-value
         const tValue = (mean1 - mean2) / se;
-        return `T-Value: ${tValue.toFixed(2)}`;
+
+        // Degrees of Freedom
+        const degreesOfFreedom = n1 + n2 - 2;
+
+        // Calculate critical value for two-tailed test
+        const criticalValue = jStat.studentt.inv(1 - significanceLevel / 2, degreesOfFreedom);
+
+        // Calculate p-value
+        const pValue = 2 * (1 - jStat.studentt.cdf(Math.abs(tValue), degreesOfFreedom)); // two-tailed
+
+        // Determine significance
+        const isSignificant = pValue < significanceLevel;
+
+        return `T-Value: ${tValue.toFixed(2)}, Degrees of Freedom: ${degreesOfFreedom}, ` +
+            `Critical Value: ±${criticalValue.toFixed(2)}, p-Value: ${pValue.toFixed(4)}, ` +
+            `Significance: ${isSignificant ? 'Yes (p < ' + significanceLevel + ')' : 'No (p > ' + significanceLevel + ')'}`;
     };
 
     const renderInputs = () => {
@@ -352,10 +464,87 @@ const Calculator = () => {
                         />
                     </>
                 );
+            case 'chiTestObservedExpected':
+
+                return (
+                    <>
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter observed values separated by commas"
+                            value={inputValues[0] || ''}
+                            onChange={(e) => handleInputChange(0, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter expected values separated by commas"
+                            value={inputValues[1] || ''}
+                            onChange={(e) => handleInputChange(1, e.target.value)}
+                        />
+                    </>
+                );
+            case 'chiTestContingency':
+                return (
+                    <>
+                        <p>Enter each row in the contingency table as comma-separated values:</p>
+                        {[...Array(3)].map((_, index) => (
+                            <input
+                                key={index}
+                                className='border rounded my-6 p-3'
+                                type="text"
+                                placeholder={`Enter row ${index + 1}`}
+                                value={inputValues[index] || ''}
+                                onChange={(e) => handleInputChange(index, e.target.value)}
+                            />
+                        ))}
+                        <p>Input Significance Level:</p>
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="number"
+                            placeholder="Enter significance level (e.g., 0.05)"
+                            value={significanceLevel}
+                            onChange={handleSignificanceLevelChange}
+                        />
+                    </>
+
+                );
+            case 'tTest':
+                return (
+                    <>
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter observed values separated by commas"
+                            value={inputValues[0] || ''}
+                            onChange={(e) => handleInputChange(0, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="text"
+                            placeholder="Enter expected values separated by commas"
+                            value={inputValues[1] || ''}
+                            onChange={(e) => handleInputChange(1, e.target.value)}
+                        />
+                        <input
+                            className='border rounded my-6 p-3'
+                            type="number"
+                            placeholder="Enter significance level (e.g., 0.05)"
+                            value={significanceLevel || ''}
+                            onChange={(e) => handleSignificanceLevelChange(e.target.value)}
+                            min="0"
+                            max="1"
+                            step="0.01"
+                        />
+                    </>
+                );
+
             default:
                 return null;
         }
     };
+
+
 
     return (
         <div className='px-32 p-5'>
@@ -369,8 +558,9 @@ const Calculator = () => {
                     <option value="varianceSample">Sample Variance</option>
                     <option value="mode">Mode</option>
                     <option value="range">Range</option>
-                    <option value="anova">ANOVA</option>
-                    <option value="chiTest">Chi-Square Test</option>
+                    <option value="anova">ANOVA (one way)</option>
+                    <option value="chiTestObservedExpected">Chi-Square Test (Observed/Expected)</option>
+                    <option value="chiTestContingency">Chi-Square Test (contingency)</option>
                     <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}

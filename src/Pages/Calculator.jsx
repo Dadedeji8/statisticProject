@@ -35,7 +35,7 @@ const Calculator = () => {
                 body: JSON.stringify({
                     result: result,
                     name: formula,
-                    location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city}`,
+                    location: `${location.latitude} ${locationInfo.region} ${location.longitude}`,
                     note: note,
                     values: inputValues
                 })
@@ -48,6 +48,7 @@ const Calculator = () => {
 
             const record = await response.json()
             console.log('record has been sucessfully recorded', record)
+
 
 
         } catch (error) {

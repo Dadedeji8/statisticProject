@@ -30,8 +30,9 @@ const Login = () => {
         e.preventDefault();
         await signInUser(loginInfo);
         if (!error) {
-            navigate('/calculator'); // Only navigate if there's no error
+            return navigate('/calculator'); // Only navigate if there's no error
         }
+        console.log(error)
     };
 
 
@@ -72,7 +73,7 @@ const Login = () => {
                 </form>
             </section>
             <div className='bbb h-full hidden md:block'>
-                <img src="" alt="Decoration" />
+
             </div>
         </div>
     );

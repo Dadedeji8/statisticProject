@@ -1,6 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { jStat } from 'jstat';
+import { AuthContext } from '../context/authContext';
+import { useNavigate } from 'react-router-dom';
+
 const Calculator = () => {
+    const navigate = useNavigate()
+    const { user } = useContext(AuthContext)
+
     const [formula, setFormula] = useState('');
     const [inputValues, setInputValues] = useState([]);
     const [result, setResult] = useState(null);
@@ -9,6 +15,15 @@ const Calculator = () => {
     const [locationInfo, setLocationInfo] = useState(null);
     const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
     const [threshold, setThreshold] = useState(3.0);
+    useEffect(
+        () => {
+            if (!user || user.token === '' || null) {
+                return navigate('/login')
+            }
+        }
+    )
+
+
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {

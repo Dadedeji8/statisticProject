@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
             const userData = await response.json();
             setUser(userData); // Adjust according to your API response
             setToken(userData.token); // Adjust according to your API response
+            localStorage.setItem('user', JSON.stringify(user))
             console.log('User logged in successfully:', userData);
             setError(null); // Clear previous errors
         } catch (error) {

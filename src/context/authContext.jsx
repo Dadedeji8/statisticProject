@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     const registerUser = async (data) => {
         try {
-            const response = await fetch(`${API_URL}/api/signup`, {
+            const response = await fetch(`${API_URL}/api/user/signup`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -39,10 +39,9 @@ export const AuthProvider = ({ children }) => {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'User registration failed!');
             }
-            signInUser(data)
             const userData = await response.json();
-            setUser(userData.user);
-            setToken(userData.token);
+            await signInUser(data)
+
             setError(null); // Clear previous errors
             console.log('User created successfully:', userData);
         } catch (error) {

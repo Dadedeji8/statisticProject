@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Calculator = () => {
     const navigate = useNavigate()
-    const { user } = useContext(AuthContext)
+    const { user, API_URL, token } = useContext(AuthContext)
 
     const [formula, setFormula] = useState('');
     const [inputValues, setInputValues] = useState([]);
@@ -15,11 +15,35 @@ const Calculator = () => {
     const [locationInfo, setLocationInfo] = useState(null);
     const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
     const [threshold, setThreshold] = useState(3.0);
+    const [note, setNote] = useState('');
+
     useEffect(() => {
         if (!user || !user.token) {  // Redirect if no user or token
             navigate('/login');
         }
     }, [user, navigate]);
+
+    const storeResultInApi = () => {
+        const response = fetch(`${API_URL}/history`, {
+            method: 'POST',
+            headers: {
+                Authorization: token,
+                'Content-type': 'application/json'
+            },
+            body: {
+                result: result,
+                name: formula,
+                location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city} ${locationInfo.district}`,
+                note: note,
+                user: user._id,
+                value: inputValues
+            }
+        })
+    }
+
+    useEffect(() => {
+        console.log('this is the user from authcontext', user)
+    }, [])
 
     useEffect(() => {
         if ("geolocation" in navigator) {
@@ -47,7 +71,9 @@ const Calculator = () => {
             })
             .catch((error) => console.error("Error fetching location data:", error));
     }, []);
-
+    const handleNote = (e) => {
+        setNote(e.target.value)
+    }
     const handleFormulaChange = (e) => {
         setFormula(e.target.value);
         setInputValues([]);
@@ -576,8 +602,8 @@ const Calculator = () => {
                     <option value="tTest">T-Test</option>
                 </select>
                 {renderInputs()}
+                <textarea name="note" onChange={handleNote} id="note" placeholder='note relating to Statistical calculation done' className='border border-black p-3 rounded'></textarea>
                 <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
-
             </form>
             {error && <p className="error">{error}</p>}
             {result && <p>Result: {result}</p>}

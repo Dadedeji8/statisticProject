@@ -602,7 +602,7 @@ const Calculator = () => {
 
 
     return (
-        <div className='px-32 p-5 flex flex-col'>
+        <div className='md:px-32 p-5 flex flex-col'>
             <form onSubmit={handleSubmit} className='flex flex-col w-100 gap-5'>
                 <select name="formula" className='border text-lg p-3 rounded-t mb-5' value={formula} onChange={handleFormulaChange}>
                     <option value="">Select formula</option>

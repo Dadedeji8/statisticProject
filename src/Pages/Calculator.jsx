@@ -25,7 +25,6 @@ const Calculator = () => {
 
     const storeResultInApi = async () => {
         console.log('this is the token passed from AuthContext', token)
-        console.log(result)
         try {
             const response = await fetch(`https://statcalculatorbackend.vercel.app/history`, {
                 method: 'POST',
@@ -36,7 +35,7 @@ const Calculator = () => {
                 body: JSON.stringify({
                     result: result,
                     name: formula,
-                    location: `${location.latitude} ${locationInfo.region} ${location.longitude}`,
+                    location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city}`,
                     note: note,
                     values: inputValues
                 })
@@ -51,7 +50,6 @@ const Calculator = () => {
             console.log('record has been sucessfully recorded', record)
 
 
-
         } catch (error) {
             console.log(error)
         }
@@ -59,7 +57,7 @@ const Calculator = () => {
 
     useEffect(() => {
         console.log('this is the url', API_URL)
-    }, [])
+    }, [API_URL])
 
     useEffect(() => {
         if ("geolocation" in navigator) {
@@ -72,21 +70,21 @@ const Calculator = () => {
         }
     }, []);
 
-    useEffect(() => {
-        fetch("https://ip-api.com/json/")
-            .then((response) => response.json())
-            .then((data) => {
-                setLocationInfo({
-                    country: data.country,
-                    region: data.regionName,
-                    city: data.city,
-                    district: data.district,
-                    timezone: data.timezone,
-                    isp: data.isp,
-                });
-            })
-            .catch((error) => console.error("Error fetching location data:", error));
-    }, []);
+    // useEffect(() => {
+    //     fetch("http://ip-api.com/json/")
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //             setLocationInfo({
+    //                 country: data.country,
+    //                 region: data.regionName,
+    //                 city: data.city,
+    //                 district: data.district,
+    //                 timezone: data.timezone,
+    //                 isp: data.isp,
+    //             });
+    //         })
+    //         .catch((error) => console.error("Error fetching location data:", error));
+    // }, []);
     const handleNote = (e) => {
         setNote(e.target.value)
     }
@@ -226,9 +224,9 @@ const Calculator = () => {
         }
 
         setResult(calculationResult);
-        if (calculationResult) {
-            storeResultInApi(); // Calling the function after setting the result
-        }
+
+        storeResultInApi(); // Calling the function after setting the result
+
         console.log("User Location: ", location);
     };
 

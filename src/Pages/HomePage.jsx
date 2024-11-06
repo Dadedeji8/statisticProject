@@ -1,15 +1,21 @@
 import React from 'react'
 // import Calculator from './calculator'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import Calculator from './Calculator'
+import { AuthContext } from '../context/authContext'
+
 const Home = () => {
     const [switched, setSwitched] = useState('calculator')
+    const { logOut } = useContext(AuthContext)
+
     return (
         < div >
-            <div className='nav bg-green-900 p-4 text-white'>
-                <Link to="/calculator" className='p-5' onClick={() => { setSwitched('calculator') }}>calculator</Link>
-                <Link to="/history" className='p-5' onClick={() => { setSwitched('history') }}>History</Link>
+            <div className='nav flex justify-between items-center bg-green-900 p-4 text-white'>
+                <div>     <Link to="/calculator" className='p-5' onClick={() => { setSwitched('calculator') }}>calculator</Link>
+                    <Link to="/history" className='p-5' onClick={() => { setSwitched('history') }}>History</Link></div>
+                <Link to="/login" className='p-5' onClick={() => { setSwitched('history'); logOut() }
+                }>Log Out</Link>
             </div>
 
             {switched == 'calculator' ? <Calculator /> : <Outlet />}

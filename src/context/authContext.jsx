@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     const registerUser = async (data) => {
         try {
-            const response = await fetch(`${API_URL}/signup`, {
+            const response = await fetch(`${API_URL}/api/signup`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'User registration failed!');
             }
-
+            signInUser(data)
             const userData = await response.json();
             setUser(userData.user);
             setToken(userData.token);
@@ -78,8 +78,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
+
+    const logOut = () => {
+        localStorage.clear()
+
+    }
+
+
     return (
-        <AuthContext.Provider value={{ user, token, registerUser, signInUser, error, loading }}>
+        <AuthContext.Provider value={{ user, token, registerUser, signInUser, error, loading, logOut }}>
             {!loading && children} {/* Render children only after loading is complete */}
         </AuthContext.Provider>
     );

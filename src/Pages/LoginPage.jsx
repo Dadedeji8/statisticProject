@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Header from '../components/headerComponent';
 import './page.css';
 import '../index.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
@@ -88,7 +88,7 @@ const Login = () => {
                             type="email"
                             className='rounded p-3'
                             name='email'
-                            value={loginInfo.email}
+
                             onChange={handleInput}
                             placeholder='example@example.com'
                             required
@@ -102,7 +102,7 @@ const Login = () => {
                                 type={hidenPassword ? "password" : "text"}
                                 className='rounded focus:border-0'
                                 name='password'
-                                value={loginInfo.password}
+
                                 onChange={handleInput}
                                 placeholder='********'
                                 required
@@ -114,7 +114,9 @@ const Login = () => {
 
                     <button type="submit" className='my-20 p-2 bg-white m-2 rounded-3xl w-3/5 text-1xl font-bold cursor-pointer text-green-700 hover:bg-green-500 hover:text-white active:bg-green-900'>
                         {!loading ? "Sign in" : <span className=' items-center justify-around'> <CgSpinner className=' rotate-45 animate-spin  ' /> <span>Loading</span></span>}
-                    </button>
+                    </button>  <div className='mt-2'>
+                        New here?     <Link to={'/signup'} className='text-white'>Sign Up Now</Link>
+                    </div>
                 </form>
             </section>
             <div className='bbb h-full hidden md:block'>

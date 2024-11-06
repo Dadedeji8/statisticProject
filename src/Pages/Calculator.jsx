@@ -35,7 +35,7 @@ const Calculator = () => {
                 body: JSON.stringify({
                     result: result,
                     name: formula,
-                    location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city}`,
+                    location: `lat ${location.latitude} long ${location.longitude} `,
                     note: note,
                     values: inputValues
                 })

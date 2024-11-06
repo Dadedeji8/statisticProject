@@ -15,14 +15,11 @@ const Calculator = () => {
     const [locationInfo, setLocationInfo] = useState(null);
     const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
     const [threshold, setThreshold] = useState(3.0);
-    useEffect(
-        () => {
-            if (!user || user.token === '' || null) {
-                return navigate('/login')
-            }
+    useEffect(() => {
+        if (!user || !user.token) {  // Redirect if no user or token
+            navigate('/login');
         }
-    )
-
+    }, [user, navigate]);
 
     useEffect(() => {
         if ("geolocation" in navigator) {

@@ -6,10 +6,25 @@ export const API_URL = 'https://statcalculatorbackend.vercel.app';
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState('');
-    const [error, setError] = useState(null); // State to handle errors
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true); // Start as true to indicate loading
+
     useEffect(() => {
-        localStorage.setItem('user', JSON.stringify(user))
-    }, [token])
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            const parsedUser = JSON.parse(savedUser);
+            setUser(parsedUser);
+            setToken(parsedUser.token);
+        }
+        setLoading(false); // Loading complete
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user)); // Sync `user` with `localStorage`
+        }
+    }, [user]);
+
     const registerUser = async (data) => {
         try {
             const response = await fetch(`${API_URL}/signup`, {
@@ -26,10 +41,10 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = await response.json();
-            setUser(userData.user); // Adjust according to your API response
-            setToken(userData.token); // Adjust according to your API response
-            console.log('User created successfully:', userData);
+            setUser(userData.user);
+            setToken(userData.token);
             setError(null); // Clear previous errors
+            console.log('User created successfully:', userData);
         } catch (error) {
             console.log('Error during registration:', error);
             setError(error.message); // Update the error state
@@ -52,11 +67,11 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = await response.json();
-            setUser(userData); // Adjust according to your API response
-            setToken(userData.token); // Adjust according to your API response
-            localStorage.setItem('user', JSON.stringify(user))
-            console.log('User logged in successfully:', userData);
+            setUser(userData);
+            setToken(userData.token);
+            localStorage.setItem('user', JSON.stringify(userData));
             setError(null); // Clear previous errors
+            console.log('User logged in successfully:', userData);
         } catch (error) {
             console.log('Error during login:', error);
             setError(error.message); // Update the error state
@@ -64,8 +79,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, registerUser, signInUser, error }}>
-            {children}
+        <AuthContext.Provider value={{ user, token, registerUser, signInUser, error, loading }}>
+            {!loading && children} {/* Render children only after loading is complete */}
         </AuthContext.Provider>
     );
 };

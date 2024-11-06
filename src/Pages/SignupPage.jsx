@@ -1,10 +1,72 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Header from '../components/headerComponent'
 import './page.css'
 import '../index.css'
+import { useNavigate, Link } from 'react-router-dom'
+import { AuthContext } from '../context/authContext'
 
 const Signup = () => {
-  
+    const navigate = useNavigate();
+    const [loginInfo, setLoginInfo] = useState({
+        email: '',
+        password: '',
+    });
+    const [validateError, setValidateError] = useState("")
+
+
+    const [loading, setLoading] = useState(false)
+    const [hidenPassword, setHidenPassword] = useState(true)
+    const { signInUser, error } = useContext(AuthContext);
+
+    useEffect(() => {
+        console.log(loginInfo);
+    }, [loginInfo]);
+
+    const handleInput = (e) => {
+        const { name, value } = e.target;
+        setLoginInfo({
+            ...loginInfo,
+            [name]: value,
+        });
+    };
+    const validateForm = () => {
+        if (!loginInfo.email) {
+            validateError("email is required")
+            return false
+        } else if (!/\S+@\S+\.\S+/.test(loginInfo.email)) {
+            setValidateError('Invalid Email')
+            return false
+        }
+        if (!loginInfo.password) {
+
+            setValidateError("Password is required")
+
+            return false
+        }
+        setValidateError('')
+        return true
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            try {
+                setLoading(true)
+                console.log('submitting the documents', loginInfo)
+                await signInUser(loginInfo);
+                if (!error) {
+                    setLoading(true)
+                    setLoginInfo({
+                        email: '',
+                        password: '',
+                    })
+                    return navigate('/calculator'); // Only navigate if there's no 
+                }
+                console.log(error)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    };
 
     return (
         <div className='fullheight md:flex w-100  bg-green-700'>

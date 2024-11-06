@@ -25,6 +25,7 @@ const Calculator = () => {
 
     const storeResultInApi = async () => {
         console.log('this is the token passed from AuthContext', token)
+        console.log(result)
         try {
             const response = await fetch(`https://statcalculatorbackend.vercel.app/history`, {
                 method: 'POST',

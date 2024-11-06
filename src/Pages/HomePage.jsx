@@ -12,9 +12,9 @@ const Home = () => {
     return (
         < div >
             <div className='nav flex justify-between items-center bg-green-900 p-4 text-white'>
-                <div>     <Link to="/calculator" className='p-5' onClick={() => { setSwitched('calculator') }}>calculator</Link>
-                    <Link to="/history" className='p-5' onClick={() => { setSwitched('history') }}>History</Link></div>
-                <Link to="/login" className='p-5' onClick={() => { setSwitched('history'); logOut() }
+                <div>     <Link to="/calculator" className='p-5 hover:text-yellow-600' onClick={() => { setSwitched('calculator') }}>calculator</Link>
+                    <Link to="/history" className='p-5 hover:text-yellow-600' onClick={() => { setSwitched('history') }}>Records</Link></div>
+                <Link to="/login" className='p-5 hover:text-yellow-600' onClick={() => { setSwitched('history'); logOut() }
                 }>Log Out</Link>
             </div>
 

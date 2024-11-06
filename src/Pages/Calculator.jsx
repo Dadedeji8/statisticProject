@@ -23,26 +23,40 @@ const Calculator = () => {
         }
     }, [user, navigate]);
 
-    const storeResultInApi = () => {
-        const response = fetch(`${API_URL}/history`, {
-            method: 'POST',
-            headers: {
-                Authorization: token,
-                'Content-type': 'application/json'
-            },
-            body: {
-                result: result,
-                name: formula,
-                location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city} ${locationInfo.district}`,
-                note: note,
-                user: user._id,
-                value: inputValues
+    const storeResultInApi = async () => {
+        console.log('this is the token passed from AuthContext', token)
+        try {
+            const response = await fetch(`https://statcalculatorbackend.vercel.app/history`, {
+                method: 'POST',
+                headers: {
+                    Authorization: token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    result: result,
+                    name: formula,
+                    location: `${locationInfo.country} ${locationInfo.region} ${locationInfo.city}`,
+                    note: note,
+                    values: inputValues
+                })
+
+            })
+
+            if (!response.ok) {
+                throw new Error(`Failed to store result: ${response.statusText}`);
             }
-        })
+
+            const record = await response.json()
+            console.log('record has been sucessfully recorded', record)
+
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
-        console.log('this is the user from authcontext', user)
+        console.log('this is the url', API_URL)
     }, [])
 
     useEffect(() => {
@@ -210,6 +224,9 @@ const Calculator = () => {
         }
 
         setResult(calculationResult);
+        if (calculationResult) {
+            storeResultInApi(); // Calling the function after setting the result
+        }
         console.log("User Location: ", location);
     };
 
@@ -585,8 +602,8 @@ const Calculator = () => {
 
 
     return (
-        <div className='px-32 p-5'>
-            <form onSubmit={handleSubmit}>
+        <div className='px-32 p-5 flex flex-col'>
+            <form onSubmit={handleSubmit} className='flex flex-col w-100 gap-5'>
                 <select name="formula" className='border text-lg p-3 rounded-t mb-5' value={formula} onChange={handleFormulaChange}>
                     <option value="">Select formula</option>
                     <option value="mean">Mean</option>
@@ -603,7 +620,7 @@ const Calculator = () => {
                 </select>
                 {renderInputs()}
                 <textarea name="note" onChange={handleNote} id="note" placeholder='note relating to Statistical calculation done' className='border border-black p-3 rounded'></textarea>
-                <button type="submit" className='bg-green-800 p-2 text-lg rounded-2xl my-20 text-white md:w-1/2 md:m-auto'>Calculate</button>
+                <button type="submit" className='bg-green-800 hover:bg-blue-700 w-9/12 p-3  text-lg rounded-2xl mb-10 text-white'>Calculate</button>
             </form>
             {error && <p className="error">{error}</p>}
             {result && <p>Result: {result}</p>}

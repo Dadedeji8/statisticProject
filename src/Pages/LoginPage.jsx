@@ -72,54 +72,66 @@ const Login = () => {
 
 
     return (
-        <div className='fullheight md:flex w-100 bg-green-700'>
-            <section className='text-center p-10'>
+        <div className='fullheight md:flex  bg-green-700'>
+            <section className='text-center p-10 flex-1'>
                 <Header text={'Sign in'} style={'text-5xl text-white uppercase fw-bolder'} />
-                <form onSubmit={handleSubmit} className='py-20'>
-                    <h1 className='text-red-600'>
-                        {
-                            validateError
-                        }
+                <form onSubmit={handleSubmit} className="py-16 w-full max-w-md mx-auto flex flex-col items-center  rounded-lg ">
+                    <h1 className="text-red-600 mb-4 text-center">
+                        {validateError && validateError}
                     </h1>
 
-                    <div className='flex mt-2'>
-                        <label htmlFor="email" className='text-xl pt-2 text-white'>Email:</label>
+                    <div className="flex flex-col w-4/5 mt-4">
+                        <label htmlFor="email" className="text-lg font-semibold mb-1 text-white">Email</label>
                         <input
                             type="email"
-                            className='rounded p-3'
-                            name='email'
-
+                            name="email"
                             onChange={handleInput}
-                            placeholder='example@example.com'
+                            placeholder="example@example.com"
                             required
+                            className="rounded p-3 w-full focus:outline-none focus:ring-2 focus:ring-green-400"
                         />
-
                     </div>
-                    <div className='flex mt-2'>
-                        <label htmlFor="password" className='text-xl pt-2 text-white'>Password:</label>
-                        <div className=' flex rounded p-3 pr-1 focus:border-0 items-center justify-center bg-white'>
+
+                    <div className="flex flex-col w-4/5 mt-4">
+                        <label htmlFor="password" className="text-lg font-semibold mb-1 text-white">Password</label>
+                        <div className="relative flex items-center rounded bg-white">
                             <input
                                 type={hidenPassword ? "password" : "text"}
-                                className='rounded focus:border-0'
-                                name='password'
-
+                                name="password"
                                 onChange={handleInput}
-                                placeholder='********'
+                                placeholder="********"
                                 required
+                                className="rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
                             />
-                            {hidenPassword ? <FaEyeSlash onClick={() => { setHidenPassword(!hidenPassword) }} /> : <FaEye onClick={() => { setHidenPassword(!hidenPassword) }} />}
+                            <div className="absolute right-3 cursor-pointer text-green-600" onClick={() => setHidenPassword(!hidenPassword)}>
+                                {hidenPassword ? <FaEyeSlash /> : <FaEye />}
+                            </div>
                         </div>
-
                     </div>
 
-                    <button type="submit" className='my-20 p-2 bg-white m-2 rounded-3xl w-3/5 text-1xl font-bold cursor-pointer text-green-700 hover:bg-green-500 hover:text-white active:bg-green-900'>
-                        {!loading ? "Sign in" : <span className=' items-center justify-around'> <CgSpinner className=' rotate-45 animate-spin  ' /> <span>Loading</span></span>}
-                    </button>  <div className='mt-2'>
-                        New here?     <Link to={'/signup'} className='text-white'>Sign Up Now</Link>
+                    <button
+                        type="submit"
+                        className="mt-6 py-2  w-4/5 bg-white flex justify-center gap-3 rounded text-xl text-green-700 hover:bg-green-500 hover:text-white transition duration-200"
+                    >
+                        {!loading ? (
+                            "Sign in"
+                        ) : (
+                            <span className="flex items-center space-x-2">
+                                <CgSpinner className="animate-spin" />
+                                <span>Loading</span>
+                            </span>
+                        )}
+                    </button>
+
+                    <div className="mt-4 text-white">
+                        New here?{' '}
+                        <Link to="/signup" className="font-semibold underline text-white hover:text-orange-600">
+                            Sign Up Now
+                        </Link>
                     </div>
                 </form>
             </section>
-            <div className='bbb h-full hidden md:block'>
+            <div className='bbb flex-1 h-full hidden md:block'>
 
             </div>
         </div>

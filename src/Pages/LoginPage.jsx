@@ -26,6 +26,7 @@ const Login = () => {
     };
 
     const handleSubmit = async (e) => {
+        console.log('submitting the documents', loginInfo)
         e.preventDefault();
         await signInUser(loginInfo);
         if (!error) {

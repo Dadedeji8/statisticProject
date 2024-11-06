@@ -1,13 +1,15 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 export const AuthContext = createContext();
-export const API_URL = 'https://statcalculatorbackend.vercel.app/';
+export const API_URL = 'https://statcalculatorbackend.vercel.app';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState('');
     const [error, setError] = useState(null); // State to handle errors
-
+    useEffect(() => {
+        localStorage.setItem('user', JSON.stringify(user))
+    }, [token])
     const registerUser = async (data) => {
         try {
             const response = await fetch(`${API_URL}/signup`, {
@@ -36,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
     const signInUser = async (data) => {
         try {
-            const response = await fetch(`${API_URL}/login`, {
+            const response = await fetch(`${API_URL}/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = await response.json();
-            setUser(userData.user); // Adjust according to your API response
+            setUser(userData); // Adjust according to your API response
             setToken(userData.token); // Adjust according to your API response
             console.log('User logged in successfully:', userData);
             setError(null); // Clear previous errors

@@ -73,7 +73,7 @@ const Calculator = () => {
     }, []);
 
     useEffect(() => {
-        fetch("http://ip-api.com/json/")
+        fetch("https://ip-api.com/json/")
             .then((response) => response.json())
             .then((data) => {
                 setLocationInfo({
@@ -633,7 +633,7 @@ const Calculator = () => {
                     <p>Longitude: {location.longitude}</p>
                 </div>
             )}
-            {locationInfo && (
+            {/* {locationInfo && (
                 <div>
                     <h3>Additional Location Info:</h3>
                     <p>Country: {locationInfo.country}</p>
@@ -643,7 +643,7 @@ const Calculator = () => {
                     <p>Timezone: {locationInfo.timezone}</p>
                     <p>ISP: {locationInfo.isp}</p>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };

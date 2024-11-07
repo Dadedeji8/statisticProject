@@ -119,7 +119,7 @@ const Signup = () => {
                             <input
                                 type={hidenPassword ? "password" : "text"}
                                 name="repassword"
-                                onChange={handleInput}
+                                onChange={handleRepeatPassword}
                                 placeholder="Re-enter Password"
                                 required
                                 className="rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-green-400"

@@ -134,7 +134,7 @@ const Signup = () => {
                         className="my-6 py-2 w-4/5 bg-white rounded text-xl text-green-700 hover:bg-green-500 flex justify-center gap-3 hover:text-white transition duration-200"
                     >
                         {!loading ? (
-                            "Sign in"
+                            "Sign Up"
                         ) : (
                             <span className="flex items-center space-x-2">
                                 <CgSpinner className="animate-spin" />

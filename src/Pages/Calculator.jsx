@@ -24,7 +24,7 @@ const Calculator = () => {
         if (!user || !user.token) {  // Redirect if no user or token
             navigate('/login');
         }
-    }, [user, navigate]);
+    }, [user]);
 
     const storeResultInApi = async () => {
         setSaveLoading(true)

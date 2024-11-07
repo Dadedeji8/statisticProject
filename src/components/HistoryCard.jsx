@@ -23,7 +23,7 @@ const HistoryCard = ({ Title = 'Name', result = "result", location = 'location',
                 <PiGps className='font-semibold m-0 p-0 text-green-600' />   <span className='text-black'>location : </span> {location}
             </p>
             <p className='text-green-950 font-bold font-sans flex items-center gap-1  '>
-                <span className='text-black'>Values : </span> {values}
+                <span className='text-black'>Values : </span> {JSON.stringify(values)}
             </p>
             <button className='share text-white bg-green-900 w-full rounded-xl flex items-center p-3 gap-4 justify-center hover:bg-green-700'>
                 <BiSend /> share

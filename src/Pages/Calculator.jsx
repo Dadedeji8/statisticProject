@@ -38,7 +38,7 @@ const Calculator = () => {
                     name: formula,
                     location: `lat ${location.latitude} long ${location.longitude} `,
                     note: note,
-                    values: inputValues
+                    values: [inputValues]
                 })
 
             })

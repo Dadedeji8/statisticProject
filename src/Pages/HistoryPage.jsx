@@ -45,7 +45,7 @@ const History = () => {
                 {/* <HistoryCard /> */}
                 {
                     history?.length === 0 ? <h1>No Records Found</h1> : history.map((record) => {
-                        return <HistoryCard key={record._id} Title={record.name} result={record.result} note={record.note} location={record.location} date={record.date} />
+                        return <HistoryCard key={record._id} Title={record.name} result={record.result} note={record.note} values={record.values} location={record.location} date={record.date} />
                     })
                 }
             </div>

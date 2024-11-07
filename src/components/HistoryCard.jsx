@@ -22,9 +22,22 @@ const HistoryCard = ({ Title = 'Name', result = "result", location = 'location',
             <p className='text-green-950 font-bold font-sans flex items-center gap-1  '>
                 <PiGps className='font-semibold m-0 p-0 text-green-600' />   <span className='text-black'>location : </span> {location}
             </p>
-            <p className='text-green-950 font-bold font-sans flex items-center gap-1  '>
-                <span className='text-black'>Values : </span> {JSON.stringify(values)}
-            </p>
+
+            <span className='text-green-900 font-bold text-xl '>Values :</span>
+            <ol className='ml-2 list-decimal font-semibold text-gray-700'>
+                {values.length === 1 && Array.isArray(values[0]) ? (
+                    values[0].map((group, groupIndex) => (
+                        <li key={groupIndex}>
+                            <span>{group}</span>
+                        </li>
+                    ))
+                ) : (
+                    values.map((value, index) => (
+                        <li key={index}>{value}</li>
+                    ))
+                )}
+            </ol>
+
             <button className='share text-white bg-green-900 w-full rounded-xl flex items-center p-3 gap-4 justify-center hover:bg-green-700'>
                 <BiSend /> share
             </button>

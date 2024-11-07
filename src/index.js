@@ -42,7 +42,7 @@ root.render(
   <React.StrictMode>
     <AuthProvider>  <RouterProvider router={router} />
 
-      <ToastContainer /></AuthProvider>
+      <ToastContainer theme="light" /></AuthProvider>
 
   </React.StrictMode>
 );

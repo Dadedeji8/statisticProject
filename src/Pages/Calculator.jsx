@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { jStat } from 'jstat';
 import { AuthContext } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Calculator = () => {
     const navigate = useNavigate()
@@ -12,6 +13,7 @@ const Calculator = () => {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [location, setLocation] = useState(null);
+    const [saveLoading, setSaveLoading] = useState(false);
     const [ipAddress, setIpAddress] = useState(null);
     const [locationInfo, setLocationInfo] = useState(null);
     const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
@@ -25,6 +27,7 @@ const Calculator = () => {
     }, [user, navigate]);
 
     const storeResultInApi = async () => {
+        setSaveLoading(true)
         console.log('this is the token passed from AuthContext', token)
         try {
             const response = await fetch(`https://statcalculatorbackend.vercel.app/history`, {
@@ -38,21 +41,27 @@ const Calculator = () => {
                     name: formula,
                     location: `lat ${location.latitude} long ${location.longitude} `,
                     note: note,
-                    values: [inputValues]
+
+                    values: inputValues
                 })
 
             })
-
             if (!response.ok) {
+                toast.error(`Failed to store result`)
+                setSaveLoading(false)
                 throw new Error(`Failed to store result: ${response.statusText}`);
             }
 
             const record = await response.json()
             console.log('record has been sucessfully recorded', record)
+            toast('record has been sucessfully recorded')
+            setSaveLoading(false)
 
 
         } catch (error) {
             console.log(error)
+            toast(error)
+            setSaveLoading(false)
         }
     }
 
@@ -642,8 +651,8 @@ const Calculator = () => {
             </form>
             {error && <p className="error">{error}</p>}
             {result && <p className='font-bold text-2xl text-blue-800'>Result: {result}</p>}
-            {result && (<button onClick={() => { storeResultInApi() }} className='text-white bg-green-600 px-10 py-3'>
-                SAVE RECORD
+            {result && (<button onClick={() => { storeResultInApi() }} className='text-white bg-green-600 w-8/12 px-10 py-3'>
+                {saveLoading ? 'LOADING' : '  SAVE RECORD'}
             </button>)}
             {location && (
                 <div>

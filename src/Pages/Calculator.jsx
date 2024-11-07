@@ -12,6 +12,7 @@ const Calculator = () => {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [location, setLocation] = useState(null);
+    const [ipAddress, setIpAddress] = useState(null);
     const [locationInfo, setLocationInfo] = useState(null);
     const [significanceLevel, setSignificanceLevel] = useState(0.05); // Default significance level
     const [threshold, setThreshold] = useState(3.0);
@@ -70,21 +71,38 @@ const Calculator = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     fetch("http://ip-api.com/json/")
-    //         .then((response) => response.json())
-    //         .then((data) => {
-    //             setLocationInfo({
-    //                 country: data.country,
-    //                 region: data.regionName,
-    //                 city: data.city,
-    //                 district: data.district,
-    //                 timezone: data.timezone,
-    //                 isp: data.isp,
-    //             });
-    //         })
-    //         .catch((error) => console.error("Error fetching location data:", error));
-    // }, []);
+    // useEffect(
+    //     () => {
+    //         const Locator = async () => {
+    //             await fetch(`https://api.ipify.org?format=json`)
+    //                 .then(response => response.json())
+    //                 .then(data => {
+    //                     // Display the IP address on the screen
+    //                     const ipAddress = data.ip;
+    //                     setIpAddress(ipAddress)
+    //                 })
+    //                 .catch(error => {
+    //                     console.error("Error fetching IP address:", error);
+    //                 });
+
+
+
+    //             await fetch("https://tools.keycdn.com/geo.json")
+    //                 .then((response) => response.json())
+    //                 .then((data) => {
+    //                     setLocationInfo({
+    //                         ...locationInfo,
+    //                         country: data.country_name,
+    //                         region: data.region_name,
+    //                         city: data.city,
+    //                         district: data.district,
+    //                         timezone: data.timezone,
+
+    //                     });
+    //                 })
+    //                 .catch((error) => console.error("Error fetching location data:", error));
+    //         }
+    //     }, []);
     const handleNote = (e) => {
         setNote(e.target.value)
     }
@@ -225,7 +243,7 @@ const Calculator = () => {
 
         setResult(calculationResult);
 
-        storeResultInApi(); // Calling the function after setting the result
+        // Calling the function after setting the result
 
         console.log("User Location: ", location);
     };
@@ -623,7 +641,10 @@ const Calculator = () => {
                 <button type="submit" className='bg-green-800 hover:bg-blue-700 w-9/12 p-3  text-lg rounded-2xl mb-10 text-white'>Calculate</button>
             </form>
             {error && <p className="error">{error}</p>}
-            {result && <p>Result: {result}</p>}
+            {result && <p className='font-bold text-2xl text-blue-800'>Result: {result}</p>}
+            {result && (<button onClick={() => { storeResultInApi() }} className='text-white bg-green-600 px-10 py-3'>
+                SAVE RECORD
+            </button>)}
             {location && (
                 <div>
                     <h3>Your Location:</h3>
@@ -639,7 +660,7 @@ const Calculator = () => {
                     <p>City: {locationInfo.city}</p>
                     <p>District: {locationInfo.district}</p>
                     <p>Timezone: {locationInfo.timezone}</p>
-                    <p>ISP: {locationInfo.isp}</p>
+
                 </div>
             )} */}
         </div>

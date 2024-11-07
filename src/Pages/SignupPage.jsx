@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/authContext'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { CgSpinner } from 'react-icons/cg'
-
+import { toast } from 'react-toastify'
 const Signup = () => {
     const navigate = useNavigate();
     const [loginInfo, setLoginInfo] = useState({
@@ -39,20 +39,22 @@ const Signup = () => {
     const validateForm = () => {
         if (!loginInfo.email) {
             setValidateError("email is required")
+            toast.error("email is required")
             return false
         } else if (!/\S+@\S+\.\S+/.test(loginInfo.email)) {
             setValidateError('Invalid Email')
+            toast.error('Invalid Email')
             return false
         }
         if (!loginInfo.password) {
 
             setValidateError("Password is required")
-
+            toast.error("Password is required")
             return false
         } else
             if (loginInfo.password !== repassword) {
                 setValidateError("Passwords don't match")
-
+                toast.error("Passwords don't match");
                 return false
             }
         setValidateError('')
@@ -75,8 +77,10 @@ const Signup = () => {
                 }
 
                 console.log(error)
+                toast(error);
             } catch (error) {
                 console.log(error)
+                toast(error);
             }
         }
     };
@@ -127,7 +131,7 @@ const Signup = () => {
                     </div>
                     <button
                         type="submit"
-                        className="my-6 py-2 w-4/5 bg-white rounded text-xl text-green-700 hover:bg-green-500 hover:text-white transition duration-200"
+                        className="my-6 py-2 w-4/5 bg-white rounded text-xl text-green-700 hover:bg-green-500 flex justify-center gap-3 hover:text-white transition duration-200"
                     >
                         {!loading ? (
                             "Sign in"

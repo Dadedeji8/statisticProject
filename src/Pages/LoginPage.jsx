@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
-
+import { toast } from 'react-toastify';
 const Login = () => {
     const navigate = useNavigate();
     const [loginInfo, setLoginInfo] = useState({
@@ -34,15 +34,17 @@ const Login = () => {
     const validateForm = () => {
         if (!loginInfo.email) {
             validateError("email is required")
+            toast.error("Email is required");
             return false
         } else if (!/\S+@\S+\.\S+/.test(loginInfo.email)) {
             setValidateError('Invalid Email')
+            toast.error("Invalid Email");
             return false
         }
         if (!loginInfo.password) {
 
             setValidateError("Password is required")
-
+            toast.error("Password is required");
             return false
         }
         setValidateError('')
@@ -56,6 +58,7 @@ const Login = () => {
                 console.log('submitting the documents', loginInfo)
                 await signInUser(loginInfo);
                 if (!error) {
+                    toast.success("Login successful!");
                     setLoading(true)
                     setLoginInfo({
                         email: '',
@@ -64,8 +67,10 @@ const Login = () => {
                     return navigate('/calculator'); // Only navigate if there's no 
                 }
                 console.log(error)
+                toast.error(error);
             } catch (error) {
                 console.log(error)
+                toast.error(error);
             }
         }
     };

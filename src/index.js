@@ -9,7 +9,8 @@ import History from "./Pages/HistoryPage";
 import Calculator from "./Pages/Calculator";
 import { AuthProvider } from "./context/authContext";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -39,7 +40,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <AuthProvider>  <RouterProvider router={router} /></AuthProvider>
+    <AuthProvider>  <RouterProvider router={router} />
+
+      <ToastContainer /></AuthProvider>
 
   </React.StrictMode>
 );

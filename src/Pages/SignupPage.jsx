@@ -94,7 +94,7 @@ const Signup = () => {
                     <div className="flex flex-col w-4/5 mt-4">
 
                         <label className='text-xl  pt-2 text-white'>Email:</label>
-                        <input type="email" className='rounded p-3 focus:outline-none  focus:ring-2 focus:ring-green-400' name='email' onChange={handleInput} placeholder='example@example.com' />
+                        <input type="email" className='rounded p-3 focus:outline-none  focus:ring-2 focus:ring-green-400' name='email' onChange={handleInput} placeholder=' johndoe@example.com' />
 
                     </div>
                     <div className="flex flex-col w-4/5 mt-4">

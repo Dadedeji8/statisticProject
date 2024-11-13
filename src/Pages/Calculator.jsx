@@ -216,6 +216,9 @@ const Calculator = () => {
             case 'variancePopulation':
                 calculationResult = calculatePopulationVariance(inputValues[0]);
                 break;
+            case 'calculateStandardDeviation':
+                calculationResult = calculateStandardDeviation(inputValues[0]);
+                break;
             case 'mode':
                 calculationResult = calculateMode(inputValues[0]);
                 break;
@@ -281,7 +284,12 @@ const Calculator = () => {
         }
         return nums[middle].toFixed(2);
     };
-
+    const calculateStandardDeviation = (values) => {
+        const numbers = values.map(Number);
+        const mean = numbers.reduce((acc, num) => acc + num, 0) / numbers.length;
+        const variance = numbers.reduce((acc, num) => acc + Math.pow(num - mean, 2), 0) / numbers.length;
+        return Math.sqrt(variance);
+    };
     const calculateSampleVariance = (values) => {
         const nums = values.split(',').map(Number);
         const mean = nums.reduce((acc, curr) => acc + curr, 0) / nums.length;
@@ -484,6 +492,7 @@ const Calculator = () => {
             case 'mode':
             case 'variancePopulation':
             case 'varianceSample':
+            case 'calculateStandardDeviation':
             case 'range':
                 return (
                     <input
@@ -638,7 +647,8 @@ const Calculator = () => {
                     <option value="groupedMean">Grouped Mean</option>
                     <option value="median">Median</option>
                     <option value="variancePopulation">Variance (Population)</option>
-                    <option value="varianceSample">Sample Variance</option>
+                    <option value="varianceSample"> Variance (Sample)</option>
+                    <option value="calculateStandardDeviation">Standard Deviation</option>
                     <option value="mode">Mode</option>
                     <option value="range">Range</option>
                     <option value="anova">ANOVA (one way)</option>

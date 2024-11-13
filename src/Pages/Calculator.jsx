@@ -316,9 +316,9 @@ const Calculator = () => {
     };
 
     const calculateANOVA = (groups, significanceLevel) => {
-        // Calculate means for each group
-        const means = groups.map(group => group.reduce((a, b) => a + b, 0) / group.length);
-        const overallMean = means.reduce((a, b) => a + b, 0) / means.length;
+        // Flatten all values from groups to calculate overall mean
+        const allValues = groups.flat();
+        const overallMean = allValues.reduce((a, b) => a + b, 0) / allValues.length;
 
         // Step 1: Calculate Sum of Squares Between Groups (SSB)
         let ssBetween = 0;
@@ -335,17 +335,17 @@ const Calculator = () => {
         });
 
         // Degrees of freedom
-        const dfBetween = groups.length - 1; // Between groups degrees of freedom
-        const dfWithin = groups.reduce((acc, group) => acc + group.length, 0) - groups.length; // Within groups degrees of freedom
+        const dfBetween = groups.length - 1;
+        const dfWithin = allValues.length - groups.length;
 
         // Mean Squares
-        const msBetween = ssBetween / dfBetween; // Mean Square Between
-        const msWithin = ssWithin / dfWithin; // Mean Square Within
+        const msBetween = ssBetween / dfBetween;
+        const msWithin = ssWithin / dfWithin;
 
         // F-value
         const fValue = msBetween / msWithin;
 
-        // P-value calculation using jStat
+        // P-value calculation using jStat (assuming jStat is available)
         const calculatePValue = (fValue, dfBetween, dfWithin) => {
             return 1 - jStat.centralF.cdf(fValue, dfBetween, dfWithin);
         };
@@ -357,6 +357,7 @@ const Calculator = () => {
 
         return `F-Value: ${fValue.toFixed(2)}, p-Value: ${pValue.toFixed(4)}, Significance: ${isSignificant ? `Yes (p < ${significanceLevel})` : `No (p > ${significanceLevel})`}`;
     };
+
     // const calculateChiSquareTest = (observed, expected, significanceLevel) => {
     //     if (observed.length !== expected.length) {
     //         return 'Observed and expected frequencies must have the same length.';
